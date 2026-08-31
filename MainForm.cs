@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ST10157545_MunicipalServicesApp
@@ -17,15 +10,11 @@ namespace ST10157545_MunicipalServicesApp
             InitializeComponent();
         }
 
-        private void btnReportIssues_Click(object sender, EventArgs e)
+        private void BtnReportIssues_Click(object sender, EventArgs e)
         {
-            // Handle report issues button click
-            using(ReportIssueForm reportIssueForm = new ReportIssueForm())
-            {
-                this.Hide(); // Hide the main form while the report issue form is open
-                reportIssueForm.ShowDialog();
-                this.Show();
-            }
+            ReportIssueForm reportIssueForm = new ReportIssueForm();
+            reportIssueForm.Show();
+            this.Hide();
         }
     }
 }
