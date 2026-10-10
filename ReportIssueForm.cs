@@ -15,20 +15,33 @@ namespace ST10157545_MunicipalServicesApp
     public partial class ReportIssueForm : Form
     {
         private readonly List<string> _attachementPaths = new List<string>();
-        public ReportIssueForm()
+
+        private readonly MainForm mainsrceen;
+        public ReportIssueForm(MainForm mainForm)
         {
             InitializeComponent();
             progressEngagement.Minimum = 0;
             progressEngagement.Maximum = 100;
             UpdateEngagementProgress();
 
+            mainsrceen = mainForm;
+
         }
+        /// <summary>
+        /// Fired whenever a tracked input control changes. Recalculates the
+        /// completeness of the report and updates the engagement feature.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 
         private void OnFormFieldChanged(object sender, EventArgs e)
         {
             UpdateEngagementProgress();
         }
-
+        /// <summary>
+        /// Recalculate how complete the current report is (0-100%) and updates
+        /// the progress bar and the accompanying encouraging message
+        /// </summary>
         private void UpdateEngagementProgress()
         {
             int completedSections = 0;
@@ -146,7 +159,10 @@ namespace ST10157545_MunicipalServicesApp
                 );
             ResetForm();
         }
-
+        /// <summary>
+        /// Clears all input fields so the user can report another issue without
+        /// needing to reopen the form
+        /// </summary>
         private void ResetForm()
         {
             txtLocation.Clear();
@@ -160,7 +176,8 @@ namespace ST10157545_MunicipalServicesApp
 
         private void btnBackToMain_Click( object sender, EventArgs e)
         {
-            this.Close();
+            this.Hide();
+            mainsrceen.Show();
         }
     }
 }
