@@ -12,9 +12,22 @@ namespace ST10157545_MunicipalServicesApp
 
         private void BtnReportIssues_Click(object sender, EventArgs e)
         {
-            ReportIssueForm reportIssueForm = new ReportIssueForm(this);
-            reportIssueForm.Show();
-            this.Hide();
+           using(ReportIssueForm reportForm = new ReportIssueForm(this))
+            {
+                this.Hide();
+                reportForm.ShowDialog();
+                this.Show();
+            }
+        }
+
+        private void btnLocalEvents_Click(object sender, EventArgs e)
+        {
+            using(LocalEventsForm eventsForm = new LocalEventsForm())
+            {
+                this.Hide();
+                eventsForm.ShowDialog();
+                this.Show();
+            }
         }
     }
 }
