@@ -23,6 +23,7 @@
             this.btnReportIssues = new System.Windows.Forms.Button();
             this.btnLocalEvents = new System.Windows.Forms.Button();
             this.btnServiceStatus = new System.Windows.Forms.Button();
+            this.btnLogout = new System.Windows.Forms.Button();
             this.lblFooter = new System.Windows.Forms.Label();
             this.pnlHeader.SuspendLayout();
             this.SuspendLayout();
@@ -73,7 +74,7 @@
             this.btnReportIssues.TabIndex = 1;
             this.btnReportIssues.Text = "Report Issues";
             this.btnReportIssues.UseVisualStyleBackColor = false;
-            this.btnReportIssues.Click += new System.EventHandler(this.BtnReportIssues_Click);
+            this.btnReportIssues.Click += new System.EventHandler(this.btnReportIssues_Click);
             //
             // btnLocalEvents
             //
@@ -93,15 +94,30 @@
             // btnServiceStatus
             //
             this.btnServiceStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnServiceStatus.Enabled = false;
+            this.btnServiceStatus.BackColor = ST10157545_MunicipalServicesApp.Theme.AccentColor;
             this.btnServiceStatus.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnServiceStatus.Font = new System.Drawing.Font(ST10157545_MunicipalServicesApp.Theme.FontFamily, 12F);
+            this.btnServiceStatus.Font = new System.Drawing.Font(ST10157545_MunicipalServicesApp.Theme.FontFamily, 12F, System.Drawing.FontStyle.Bold);
+            this.btnServiceStatus.ForeColor = System.Drawing.Color.White;
             this.btnServiceStatus.Location = new System.Drawing.Point(26, 276);
             this.btnServiceStatus.Name = "btnServiceStatus";
             this.btnServiceStatus.Size = new System.Drawing.Size(508, 60);
             this.btnServiceStatus.TabIndex = 3;
-            this.btnServiceStatus.Text = "Service Request Status (coming soon)";
-            this.btnServiceStatus.UseVisualStyleBackColor = true;
+            this.btnServiceStatus.Text = "Service Request Status";
+            this.btnServiceStatus.UseVisualStyleBackColor = false;
+            this.btnServiceStatus.Click += new System.EventHandler(this.btnServiceStatus_Click);
+            //
+            // btnLogout
+            //
+            this.btnLogout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLogout.Font = new System.Drawing.Font(ST10157545_MunicipalServicesApp.Theme.FontFamily, 10F);
+            this.btnLogout.Location = new System.Drawing.Point(26, 356);
+            this.btnLogout.Name = "btnLogout";
+            this.btnLogout.Size = new System.Drawing.Size(508, 38);
+            this.btnLogout.TabIndex = 4;
+            this.btnLogout.Text = "Log Out";
+            this.btnLogout.UseVisualStyleBackColor = true;
+            this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
             //
             // lblFooter
             //
@@ -109,26 +125,26 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblFooter.Font = new System.Drawing.Font(ST10157545_MunicipalServicesApp.Theme.FontFamily, 8F, System.Drawing.FontStyle.Italic);
             this.lblFooter.ForeColor = System.Drawing.Color.Gray;
-            this.lblFooter.Location = new System.Drawing.Point(26, 356);
+            this.lblFooter.Location = new System.Drawing.Point(26, 408);
             this.lblFooter.Name = "lblFooter";
             this.lblFooter.Size = new System.Drawing.Size(508, 34);
             this.lblFooter.TabIndex = 5;
-            this.lblFooter.Text = "\"Service Request Status\" is not yet implemented. The window can be resized or " +
-    "maximised to suit your screen.";
+            this.lblFooter.Text = "The window can be resized or maximised to suit your screen.";
             //
             // MainForm
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = ST10157545_MunicipalServicesApp.Theme.BackgroundColor;
-            this.ClientSize = new System.Drawing.Size(560, 410);
+            this.ClientSize = new System.Drawing.Size(560, 460);
             this.Controls.Add(this.lblFooter);
+            this.Controls.Add(this.btnLogout);
             this.Controls.Add(this.btnServiceStatus);
             this.Controls.Add(this.btnLocalEvents);
             this.Controls.Add(this.btnReportIssues);
             this.Controls.Add(this.pnlHeader);
             this.Font = new System.Drawing.Font(ST10157545_MunicipalServicesApp.Theme.FontFamily, 9F);
-            this.MinimumSize = new System.Drawing.Size(460, 420);
+            this.MinimumSize = new System.Drawing.Size(460, 470);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Municipal Services Application";
@@ -146,6 +162,7 @@
         private System.Windows.Forms.Button btnReportIssues;
         private System.Windows.Forms.Button btnLocalEvents;
         private System.Windows.Forms.Button btnServiceStatus;
+        private System.Windows.Forms.Button btnLogout;
         private System.Windows.Forms.Label lblFooter;
     }
 }

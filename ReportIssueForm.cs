@@ -1,46 +1,46 @@
 ﻿using ST10157545_MunicipalServicesApp.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ST10157545_MunicipalServicesApp
 {
+    /// <summary>
+    /// Handles the "Report Issues" workflow: capturing the location, category,
+    /// description and optional attachments for a citizen-reported issue, and
+    /// giving the user real-time feedback on how complete their report is.
+    ///
+    /// The engagement feature (progress bar + encouraging label) implements the
+    /// "real-time status feedback" user engagement strategy chosen and justified
+    /// in the accompanying research document (Task 1).
+    /// </summary>
     public partial class ReportIssueForm : Form
     {
-        private readonly List<string> _attachementPaths = new List<string>();
+        private readonly List<string> _attachmentPaths = new List<string>();
+        private readonly User _currentUser;
 
-        private readonly MainForm mainsrceen;
-        public ReportIssueForm(MainForm mainForm)
+        public ReportIssueForm(User currentUser)
         {
+            _currentUser = currentUser;
             InitializeComponent();
             progressEngagement.Minimum = 0;
             progressEngagement.Maximum = 100;
             UpdateEngagementProgress();
-
-            mainsrceen = mainForm;
-
         }
+
         /// <summary>
         /// Fired whenever a tracked input control changes. Recalculates the
         /// completeness of the report and updates the engagement feature.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-
         private void OnFormFieldChanged(object sender, EventArgs e)
         {
             UpdateEngagementProgress();
         }
+
         /// <summary>
-        /// Recalculate how complete the current report is (0-100%) and updates
-        /// the progress bar and the accompanying encouraging message
+        /// Recalculates how complete the current report is (0-100%) and updates
+        /// the progress bar and the accompanying encouraging message.
         /// </summary>
         private void UpdateEngagementProgress()
         {
@@ -52,7 +52,7 @@ namespace ST10157545_MunicipalServicesApp
                 completedSections++;
             }
 
-            if(cmbCategory.SelectedIndex != -1)
+            if (cmbCategory.SelectedIndex != -1)
             {
                 completedSections++;
             }
@@ -62,7 +62,7 @@ namespace ST10157545_MunicipalServicesApp
                 completedSections++;
             }
 
-            if (_attachementPaths.Count > 0) 
+            if (_attachmentPaths.Count > 0)
             {
                 completedSections++;
             }
@@ -70,8 +70,8 @@ namespace ST10157545_MunicipalServicesApp
             int percentage = (completedSections * 100) / totalSections;
             progressEngagement.Value = percentage;
 
-            switch (completedSections) 
-            { 
+            switch (completedSections)
+            {
                 case 0:
                     lblEngagement.Text = "Let's get this issue reported - fill in the fields below.";
                     break;
@@ -79,37 +79,35 @@ namespace ST10157545_MunicipalServicesApp
                     lblEngagement.Text = "Good start! Now select a category for the issue.";
                     break;
                 case 2:
-                    lblEngagement.Text = "Nice work - add a description so the municaipality knows what's wrong.";
+                    lblEngagement.Text = "Nice work - add a description so the municipality knows what's wrong.";
                     break;
                 case 3:
-                    lblEngagement.Text = "Almost there! Attach a photo if you one , or submit now.";
+                    lblEngagement.Text = "Almost there! Attach a photo if you have one, or submit now.";
                     break;
                 case 4:
                     lblEngagement.Text = "Report is complete - thank you for helping improve your community!";
                     break;
-
-            
             }
         }
 
         private void btnAttach_Click(object sender, EventArgs e)
         {
-            if (openFileDialogAttach.ShowDialog() == DialogResult.OK) 
+            if (openFileDialogAttach.ShowDialog() == DialogResult.OK)
             {
                 foreach (string fileName in openFileDialogAttach.FileNames)
                 {
-                    if (!_attachementPaths.Contains(fileName))
+                    if (!_attachmentPaths.Contains(fileName))
                     {
-                        _attachementPaths.Add(fileName);
+                        _attachmentPaths.Add(fileName);
                         lstAttachments.Items.Add(Path.GetFileName(fileName));
                     }
                 }
+
                 UpdateEngagementProgress();
-            
             }
         }
 
-        private void btnSubmit_Click(object sender, EventArgs e) 
+        private void btnSubmit_Click(object sender, EventArgs e)
         {
             List<string> missingFields = new List<string>();
 
@@ -118,7 +116,7 @@ namespace ST10157545_MunicipalServicesApp
                 missingFields.Add("Location");
             }
 
-            if (cmbCategory.SelectedIndex == -1) 
+            if (cmbCategory.SelectedIndex == -1)
             {
                 missingFields.Add("Category");
             }
@@ -127,57 +125,56 @@ namespace ST10157545_MunicipalServicesApp
             {
                 missingFields.Add("Description");
             }
-            if(missingFields.Count > 0)
+
+            if (missingFields.Count > 0)
             {
                 MessageBox.Show(
-                    "Please complete the following field(s) before submiting: \n\n -"+
-                    string.Join(", ", missingFields),
+                    "Please complete the following field(s) before submitting:\n\n- " +
+                    string.Join("\n- ", missingFields),
                     "Incomplete Report",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                    
-                    );
+                    MessageBoxIcon.Warning);
                 return;
             }
 
             Issue newIssue = new Issue(
                 txtLocation.Text.Trim(),
-                cmbCategory.SelectedItem.ToString(), 
+                cmbCategory.SelectedItem.ToString(),
                 rtbDescription.Text.Trim(),
-                new List<string>(_attachementPaths)
-                );
+                new List<string>(_attachmentPaths));
 
+            newIssue.CreatedByUsername = _currentUser.Username;
             IssueRepository.Add(newIssue);
 
             MessageBox.Show(
-                "Thank you! Your issue has been reported successfully. \n\n"+
-                "Reference number: "+ newIssue.Id.ToString().Substring(0,8).ToUpper() + "\n"+
-                "Total issues reported this session: " + IssueRepository.Count,
+                "Thank you! Your issue has been reported successfully.\n\n" +
+                "Ticket number: " + newIssue.TicketReference + " (priority: " + newIssue.Priority + ")\n" +
+                "Track its progress any time under Service Request Status.",
                 "Report Submitted",
                 MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-                );
+                MessageBoxIcon.Information);
+
             ResetForm();
         }
+
         /// <summary>
         /// Clears all input fields so the user can report another issue without
-        /// needing to reopen the form
+        /// needing to reopen the form.
         /// </summary>
         private void ResetForm()
         {
-            txtLocation.Clear();
+            txtLocation.SelectedIndex = -1;
             cmbCategory.SelectedIndex = -1;
             rtbDescription.Clear();
             lstAttachments.Items.Clear();
-            _attachementPaths.Clear();
+            _attachmentPaths.Clear();
             UpdateEngagementProgress();
             txtLocation.Focus();
         }
 
-        private void btnBackToMain_Click( object sender, EventArgs e)
+        private void btnBackToMain_Click(object sender, EventArgs e)
         {
-            this.Hide();
-            mainsrceen.Show();
+            this.Close();
         }
     }
 }
