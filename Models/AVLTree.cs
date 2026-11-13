@@ -1,29 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ST10157545_MunicipalServicesApp.Models
 {
-    /**
-     * Represents an AVL tree data structure.
-     * An AVL tree is a self-balancing binary search tree where the difference in heights between the left and right subtrees of any node is at most one.
-     * A self-balancing AVL tree keyed by a long (DateTime.Ticks of when the request was submitted).
-     * ServiceRequestRepository uses this - rather than the plain BST - whenever the admin dashboard needs a guaranteed
-     * O(log n) chronological listing even after thousands of requests have been logged in a single run, because an AVL tree's rotations keep
-     * the tree height balanced instead of degrading to a linked list the way an
-     * unbalanced BST would if tickets happened to arrive in date order.
-     */
-
+    /// <summary>
+    /// A self-balancing AVL tree keyed by a long (DateTime.Ticks of when the
+    /// request was submitted). ServiceRequestRepository uses this - rather
+    /// than the plain BST - whenever the admin dashboard needs a guaranteed
+    /// O(log n) chronological listing even after thousands of requests have
+    /// been logged in a single run, because an AVL tree's rotations keep the
+    /// tree height balanced instead of degrading to a linked list the way an
+    /// unbalanced BST would if tickets happened to arrive in date order.
+    /// </summary>
     public class AvlNode<TValue>
     {
         public long Key;
-
         public TValue Value;
-
         public AvlNode<TValue> Left;
-
         public AvlNode<TValue> Right;
         public int Height = 1;
 
@@ -33,6 +26,7 @@ namespace ST10157545_MunicipalServicesApp.Models
             Value = value;
         }
     }
+
     public class AVLTree<TValue>
     {
         private AvlNode<TValue> _root;
@@ -54,16 +48,15 @@ namespace ST10157545_MunicipalServicesApp.Models
 
         private static AvlNode<TValue> RotateRight(AvlNode<TValue> y)
         {
-            AvlNode<TValue> x = y.Right;
-            AvlNode<TValue> t2 = y.Left;
+            AvlNode<TValue> x = y.Left;
+            AvlNode<TValue> t2 = x.Right;
 
-            y.Left = x;
-            x.Right = t2;
+            x.Right = y;
+            y.Left = t2;
 
             RecalculateHeight(y);
             RecalculateHeight(x);
             return x;
-
         }
 
         private static AvlNode<TValue> RotateLeft(AvlNode<TValue> x)
@@ -72,7 +65,7 @@ namespace ST10157545_MunicipalServicesApp.Models
             AvlNode<TValue> t2 = y.Left;
 
             y.Left = x;
-            x.Left = t2;
+            x.Right = t2;
 
             RecalculateHeight(x);
             RecalculateHeight(y);
@@ -86,60 +79,61 @@ namespace ST10157545_MunicipalServicesApp.Models
 
         private AvlNode<TValue> InsertRecursive(AvlNode<TValue> node, long key, TValue value)
         {
-            if(node == null)
+            if (node == null)
             {
                 return new AvlNode<TValue>(key, value);
             }
 
-            if(key < node.Key)
+            // Keys equal to an existing key (two requests stamped with the same
+            // tick, which a coarse system clock can produce) go to the right, so
+            // the key itself is never altered and in-order traversal still
+            // returns them in the order they were inserted.
+            if (key < node.Key)
             {
                 node.Left = InsertRecursive(node.Left, key, value);
-            }else if(key > node.Key){
-                node.Right = InsertRecursive(node.Right, key, value);
-
             }
             else
             {
-                //Duplicate submission timestamps (same tick) are vanishingly
-                //unlikely in practice, but nudge the key so no request is lost
-                node.Right = InsertRecursive(node.Right, key + 1, value);
+                node.Right = InsertRecursive(node.Right, key, value);
             }
 
+            return Rebalance(node);
+        }
+
+        /// <summary>
+        /// Restores the AVL property at <paramref name="node"/>. The rotation is
+        /// chosen from the balance factor of the heavy child rather than by
+        /// comparing keys, which stays correct when keys are duplicated.
+        /// </summary>
+        private static AvlNode<TValue> Rebalance(AvlNode<TValue> node)
+        {
             RecalculateHeight(node);
             int balance = BalanceFactor(node);
 
-            //Left-Left
-            if(balance > 1 && key < node.Left.Key)
+            if (balance > 1)
             {
+                // Left-Right case: left child leans right, so rotate it left first.
+                if (BalanceFactor(node.Left) < 0)
+                {
+                    node.Left = RotateLeft(node.Left);
+                }
                 return RotateRight(node);
             }
 
-            //Right-Right
-            if(balance < -1 && key > node.Right.Key)
+            if (balance < -1)
             {
-                return RotateLeft(node);
-            }
-
-            //Left-Right
-            if(balance > 1 && key > node.Left.Key)
-            {
-                node.Left = RotateLeft(node.Left);
-                return RotateRight(node);
-            }
-
-            //Right-Left
-            if(balance < -1 && key < node.Right.Key)
-            {
-                node.Right = RotateRight(node.Right);
+                // Right-Left case: right child leans left, so rotate it right first.
+                if (BalanceFactor(node.Right) > 0)
+                {
+                    node.Right = RotateRight(node.Right);
+                }
                 return RotateLeft(node);
             }
 
             return node;
         }
 
-        /**
-         <summary>In-order traversal yields values sorted chronologically, oldest first.</summary>
-         */
+        /// <summary>In-order traversal yields values sorted chronologically, oldest first.</summary>
         public List<TValue> InOrder()
         {
             List<TValue> result = new List<TValue>();
@@ -154,6 +148,7 @@ namespace ST10157545_MunicipalServicesApp.Models
             ReverseInOrderVisit(_root, result);
             return result;
         }
+
         private void InOrderVisit(AvlNode<TValue> node, List<TValue> result)
         {
             if (node == null) return;
@@ -161,6 +156,7 @@ namespace ST10157545_MunicipalServicesApp.Models
             result.Add(node.Value);
             InOrderVisit(node.Right, result);
         }
+
         private void ReverseInOrderVisit(AvlNode<TValue> node, List<TValue> result)
         {
             if (node == null) return;
@@ -168,6 +164,7 @@ namespace ST10157545_MunicipalServicesApp.Models
             result.Add(node.Value);
             ReverseInOrderVisit(node.Left, result);
         }
+
         public int CurrentHeight
         {
             get { return Height(_root); }
